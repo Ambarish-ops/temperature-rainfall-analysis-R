@@ -1,0 +1,188 @@
+---
+title: "Analysis of Temperature and Rainfall Trends Using R"
+author: "R Ambarish"
+date: "`r format(Sys.Date(), '%d-%m-%Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+---
+
+# 1. Introduction
+
+Weather conditions change from day to day. Temperature and rainfall are two important variables used to understand these changes. This Tiny Project uses **R and R Markdown** to import, preprocess, analyse and visualize a weather dataset.
+
+**Dataset note:** `weather_data.csv` is a self-contained 30-day sample dataset prepared for academic demonstration.
+
+# 2. Objectives
+
+- Import weather data from a CSV file.
+- Inspect, preprocess and clean the data.
+- Calculate descriptive statistics.
+- Study temperature and rainfall trends.
+- Create graphs and plots.
+- Examine the relationship between temperature and rainfall.
+- Interpret the results.
+- Present findings and a conclusion.
+
+# 3. Data Importing
+
+The data is stored in a CSV file. The `read.csv()` function imports it into R.
+
+```{r import}
+weather <- read.csv("weather_data.csv", stringsAsFactors = FALSE)
+weather$Date <- as.Date(weather$Date)
+
+head(weather)
+str(weather)
+```
+
+**Code explanation:** `read.csv()` reads the CSV file. `as.Date()` converts the Date column into a proper date format. `head()` displays the first rows and `str()` shows the structure of the dataset.
+
+# 4. Data Preprocessing and Cleaning
+
+First, missing values and duplicate rows are checked.
+
+```{r checks}
+colSums(is.na(weather))
+sum(duplicated(weather))
+```
+
+The data is then cleaned by removing duplicate records and incomplete rows.
+
+```{r cleaning}
+weather <- weather[!duplicated(weather), ]
+weather <- weather[complete.cases(weather), ]
+
+nrow(weather)
+```
+
+**Code explanation:** `duplicated()` identifies repeated rows. `complete.cases()` identifies complete records. The filtering statements keep only unique and complete observations.
+
+# 5. Statistical Analysis
+
+The following code calculates mean, median, minimum, maximum and standard deviation.
+
+```{r statistics}
+summary_table <- data.frame(
+  Measure = c("Mean", "Median", "Minimum", "Maximum", "Standard Deviation"),
+  Temperature_C = c(
+    mean(weather$Temperature_C),
+    median(weather$Temperature_C),
+    min(weather$Temperature_C),
+    max(weather$Temperature_C),
+    sd(weather$Temperature_C)
+  ),
+  Rainfall_mm = c(
+    mean(weather$Rainfall_mm),
+    median(weather$Rainfall_mm),
+    min(weather$Rainfall_mm),
+    max(weather$Rainfall_mm),
+    sd(weather$Rainfall_mm)
+  )
+)
+
+knitr::kable(round(summary_table, 2),
+             caption = "Summary Statistics")
+```
+
+**Code explanation:** `mean()` calculates the average, `median()` gives the middle value, `min()` and `max()` find the lowest and highest values, and `sd()` measures variation.
+
+# 6. Temperature Trend
+
+```{r temperature}
+plot(
+  weather$Date, weather$Temperature_C,
+  type = "o",
+  pch = 16,
+  xlab = "Date",
+  ylab = "Temperature (°C)",
+  main = "Daily Temperature Trend"
+)
+```
+
+**Interpretation:** The graph shows day-to-day changes in temperature. The selected period contains both cooler and warmer days.
+
+# 7. Rainfall Trend
+
+```{r rainfall}
+barplot(
+  weather$Rainfall_mm,
+  names.arg = format(weather$Date, "%d"),
+  xlab = "Day of August 2026",
+  ylab = "Rainfall (mm)",
+  main = "Daily Rainfall Trend",
+  las = 2
+)
+```
+
+**Interpretation:** Rainfall varies considerably. Several days have little or no rainfall, while a few days have substantially higher rainfall.
+
+# 8. Temperature and Rainfall Relationship
+
+```{r scatter}
+plot(
+  weather$Temperature_C, weather$Rainfall_mm,
+  pch = 19,
+  xlab = "Temperature (°C)",
+  ylab = "Rainfall (mm)",
+  main = "Temperature vs Rainfall"
+)
+
+abline(lm(Rainfall_mm ~ Temperature_C, data = weather), lty = 2)
+```
+
+The Pearson correlation is calculated using:
+
+```{r correlation}
+correlation <- cor(weather$Temperature_C, weather$Rainfall_mm)
+round(correlation, 3)
+```
+
+**Interpretation:** The correlation coefficient measures the linear relationship between temperature and rainfall in this sample. It should not be treated as a general climate conclusion because the dataset covers only 30 days.
+
+# 9. Findings
+
+The analysis identifies:
+
+- Average temperature of approximately **32 °C**.
+- Minimum temperature of **28 °C**.
+- Maximum temperature of **36 °C**.
+- Average daily rainfall of approximately **11.53 mm**.
+- Total rainfall of approximately **346 mm**.
+- Highest rainfall of **35 mm** during the selected period.
+- The correlation value describes the linear relationship between temperature and rainfall in this sample.
+
+# 10. Conclusion
+
+This project demonstrates a complete basic data-analysis workflow in R. The dataset was imported from a CSV file, checked for missing and duplicate records, cleaned, statistically analysed and visualized.
+
+The graphs show that both temperature and rainfall change from day to day. The correlation analysis provides a numerical measure of their linear relationship for the selected sample.
+
+Because this is a small academic dataset covering only 30 days, the findings should not be interpreted as long-term climate behaviour. A larger dataset covering several months or years would be more suitable for long-term weather trend analysis.
+
+# 11. R Functions Used
+
+| Function | Purpose |
+|---|---|
+| `read.csv()` | Imports CSV data |
+| `as.Date()` | Converts text to date format |
+| `head()` | Displays first rows |
+| `str()` | Shows data structure |
+| `is.na()` | Checks missing values |
+| `duplicated()` | Checks duplicate rows |
+| `complete.cases()` | Identifies complete records |
+| `mean()` | Calculates average |
+| `median()` | Calculates middle value |
+| `min()` / `max()` | Finds minimum / maximum |
+| `sd()` | Calculates standard deviation |
+| `plot()` | Creates line/scatter plots |
+| `barplot()` | Creates bar graph |
+| `cor()` | Calculates correlation |
+| `lm()` | Fits a linear model |
+| `knitr::kable()` | Creates a formatted table |
+
+# 12. Final Result
+
+The project covers **data importing, preprocessing and cleaning, statistical analysis, graph creation, interpretation, R-code explanation, findings and conclusion**, as required for the Tiny Project.
